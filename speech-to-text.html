@@ -2,8 +2,64 @@
 <html>
 <head>
   <title>Speech to Text</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 1.5em;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #transcript {
+      width: 90%;
+      max-width: 600px;
+      min-height: 100px;
+      padding: 10px;
+      font-size: 1em;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 20px;
+      overflow-wrap: break-word;
+    }
+
+    #recordButton {
+      padding: 15px 30px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #recordButton.active {
+      background-color: #dc3545;
+    }
+
+    #instructions {
+      font-size: 0.9em;
+      color: #555;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
   <script>
     let recognition;
+    let isRecording = false;
 
     function setupRecognition() {
       try {
@@ -25,6 +81,8 @@
           };
 
           recognition.onend = () => {
+            isRecording = false;
+            toggleButton();
             console.log("Speech recognition ended.");
           };
         } else {
@@ -36,18 +94,36 @@
       }
     }
 
+    function toggleRecording() {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    }
+
     function startRecording() {
       console.log("Starting recording...");
       if (recognition) {
+        isRecording = true;
         recognition.start();
+        toggleButton();
       }
     }
 
     function stopRecording() {
       console.log("Stopping recording...");
       if (recognition) {
+        isRecording = false;
         recognition.stop();
+        toggleButton();
       }
+    }
+
+    function toggleButton() {
+      const button = document.getElementById("recordButton");
+      button.textContent = isRecording ? "Stop Recording" : "Start Recording";
+      button.classList.toggle("active", isRecording);
     }
 
     window.onload = setupRecognition;
@@ -55,7 +131,8 @@
 </head>
 <body>
   <h1>Speech to Text</h1>
-  <button onmousedown="startRecording()" onmouseup="stopRecording()">Hold to Speak</button>
-  <p id="transcript">Transcript will appear here.</p>
+  <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
+  <p id="instructions">Tap to start recording, tap again to stop.</p>
+  <div id="transcript">Transcript will appear here.</div>
 </body>
 </html>
