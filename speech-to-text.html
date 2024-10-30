@@ -1,57 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Speech to Text</title>
-    <script>
-      let recognition;
+<head>
+  <title>Speech to Text</title>
+  <script>
+    let recognition;
 
-      function setupRecognition() {
-        try {
-          if ("webkitSpeechRecognition" in window) {
-            recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = "en-US";
+    function setupRecognition() {
+      try {
+        if ("webkitSpeechRecognition" in window) {
+          recognition = new webkitSpeechRecognition();
+          recognition.continuous = false;
+          recognition.interimResults = false;
+          recognition.lang = "en-US";
 
-            recognition.onresult = (event) => {
-              const transcript = event.results[0][0].transcript;
-              console.log("Transcription result:", transcript);
-              window.ReactNativeWebView.postMessage(transcript);
-            };
+          recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('transcript').textContent = transcript;
+            console.log("Transcription result:", transcript);
+          };
 
-            recognition.onerror = (event) => {
-              console.log("Error during recognition:", event.error);
-              window.ReactNativeWebView.postMessage("Error: " + event.error);
-            };
+          recognition.onerror = (event) => {
+            console.log("Error during recognition:", event.error);
+            alert("Error: " + event.error);
+          };
 
-            recognition.onend = () => {
-              console.log("Speech recognition ended.");
-            };
-          } else {
-            alert("Speech Recognition not supported");
-          }
-        } catch (error) {
-          console.log("Setup error:", error.message);
-          window.ReactNativeWebView.postMessage("Error: " + error.message);
+          recognition.onend = () => {
+            console.log("Speech recognition ended.");
+          };
+        } else {
+          alert("Speech Recognition not supported on this browser.");
         }
+      } catch (error) {
+        console.log("Setup error:", error.message);
+        alert("Error: " + error.message);
       }
+    }
 
-      function startRecording() {
-        console.log("Starting recording...");
-        if (recognition) {
-          recognition.start();
-        }
+    function startRecording() {
+      console.log("Starting recording...");
+      if (recognition) {
+        recognition.start();
       }
+    }
 
-      function stopRecording() {
-        console.log("Stopping recording...");
-        if (recognition) {
-          recognition.stop();
-        }
+    function stopRecording() {
+      console.log("Stopping recording...");
+      if (recognition) {
+        recognition.stop();
       }
+    }
 
-      window.onload = setupRecognition;
-    </script>
-  </head>
-  <body></body>
+    window.onload = setupRecognition;
+  </script>
+</head>
+<body>
+  <h1>Speech to Text</h1>
+  <button onmousedown="startRecording()" onmouseup="stopRecording()">Hold to Speak</button>
+  <p id="transcript">Transcript will appear here.</p>
+</body>
 </html>
