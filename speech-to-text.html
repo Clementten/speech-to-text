@@ -44,17 +44,11 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     #recordButton.active {
       background-color: #dc3545;
-    }
-
-    #instructions {
-      font-size: 0.9em;
-      color: #555;
-      text-align: center;
-      margin-top: 10px;
     }
   </style>
   <script>
@@ -73,6 +67,8 @@
             const transcript = event.results[0][0].transcript;
             document.getElementById('transcript').textContent = transcript;
             console.log("Transcription result:", transcript);
+            // Send the transcript to React Native app
+            window.ReactNativeWebView.postMessage(transcript);
           };
 
           recognition.onerror = (event) => {
@@ -132,7 +128,6 @@
 <body>
   <h1>Speech to Text</h1>
   <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
-  <p id="instructions">Tap to start recording, tap again to stop.</p>
   <div id="transcript">Transcript will appear here.</div>
 </body>
 </html>
