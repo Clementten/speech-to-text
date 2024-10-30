@@ -1,57 +1,135 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Speech to Text</title>
-    <script>
-      let recognition;
+<head>
+  <title>Speech to Text</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f8f9fa;
+      color: #333;
+    }
 
-      function setupRecognition() {
-        try {
-          if ("webkitSpeechRecognition" in window) {
-            recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = "en-US";
+    h1 {
+      font-size: 1.5em;
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-            recognition.onresult = (event) => {
-              const transcript = event.results[0][0].transcript;
-              console.log("Transcription result:", transcript);
-              window.ReactNativeWebView.postMessage(transcript);
-            };
+    #transcript {
+      width: 90%;
+      max-width: 600px;
+      min-height: 100px;
+      padding: 10px;
+      font-size: 1em;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 20px;
+      overflow-wrap: break-word;
+    }
 
-            recognition.onerror = (event) => {
-              console.log("Error during recognition:", event.error);
-              window.ReactNativeWebView.postMessage("Error: " + event.error);
-            };
+    #recordButton {
+      padding: 15px 30px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
 
-            recognition.onend = () => {
-              console.log("Speech recognition ended.");
-            };
-          } else {
-            alert("Speech Recognition not supported");
-          }
-        } catch (error) {
-          console.log("Setup error:", error.message);
-          window.ReactNativeWebView.postMessage("Error: " + error.message);
+    #recordButton.active {
+      background-color: #dc3545;
+    }
+  </style>
+  <script>
+    let recognition;
+    let isRecording = false;
+
+    function setupRecognition() {
+      try {
+        if ("webkitSpeechRecognition" in window) {
+          recognition = new webkitSpeechRecognition();
+          recognition.continuous = false;
+          recognition.interimResults = false;
+          recognition.lang = "en-US";
+
+          recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('transcript').textContent = transcript;
+            console.log("Transcription result:", transcript);
+
+            // Send transcription back to the app using the custom URL scheme
+            const encodedTranscript = encodeURIComponent(transcript);
+            window.location.href = `yourapp://transcription?text=${encodedTranscript}`;
+          };
+
+          recognition.onerror = (event) => {
+            console.log("Error during recognition:", event.error);
+            alert("Error: " + event.error);
+          };
+
+          recognition.onend = () => {
+            isRecording = false;
+            toggleButton();
+            console.log("Speech recognition ended.");
+          };
+        } else {
+          alert("Speech Recognition not supported on this browser.");
         }
+      } catch (error) {
+        console.log("Setup error:", error.message);
+        alert("Error: " + error.message);
       }
+    }
 
-      function startRecording() {
-        console.log("Starting recording...");
-        if (recognition) {
-          recognition.start();
-        }
+    function toggleRecording() {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        startRecording();
       }
+    }
 
-      function stopRecording() {
-        console.log("Stopping recording...");
-        if (recognition) {
-          recognition.stop();
-        }
+    function startRecording() {
+      console.log("Starting recording...");
+      if (recognition) {
+        isRecording = true;
+        recognition.start();
+        toggleButton();
       }
+    }
 
-      window.onload = setupRecognition;
-    </script>
-  </head>
-  <body></body>
+    function stopRecording() {
+      console.log("Stopping recording...");
+      if (recognition) {
+        isRecording = false;
+        recognition.stop();
+        toggleButton();
+      }
+    }
+
+    function toggleButton() {
+      const button = document.getElementById("recordButton");
+      button.textContent = isRecording ? "Stop Recording" : "Start Recording";
+      button.classList.toggle("active", isRecording);
+    }
+
+    window.onload = setupRecognition;
+  </script>
+</head>
+<body>
+  <h1>Speech to Text</h1>
+  <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
+  <div id="transcript">Transcript will appear here.</div>
+</body>
 </html>
