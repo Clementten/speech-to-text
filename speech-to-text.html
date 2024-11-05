@@ -69,7 +69,7 @@
             console.log("Transcription result:", transcript);
 
             // Send the transcription back to the React Native app using deep linking
-            const appUrl = `yourapp://transcription?text=${encodeURIComponent(transcript)}`;
+            const appUrl = `delifast://transcription?text=${encodeURIComponent(transcript)}`;
             window.location.href = appUrl;
           };
 
