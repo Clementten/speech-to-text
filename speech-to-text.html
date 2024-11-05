@@ -1,10 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Speech to Text</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Speech to Text</title>
   <style>
-    /* (Style code remains unchanged) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      max-width: 500px;
+      width: 90%;
+      background-color: #ffffff;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    h1 {
+      font-size: 1.8em;
+      color: #007bff;
+      margin-bottom: 15px;
+    }
+
+    .description {
+      font-size: 1em;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    #transcript {
+      width: 100%;
+      min-height: 80px;
+      padding: 15px;
+      font-size: 1em;
+      color: #333;
+      background-color: #f1f3f5;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 10px;
+      overflow-wrap: break-word;
+    }
+
+    #recordButton {
+      display: inline-block;
+      padding: 12px 25px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background-color 0.3s ease;
+    }
+
+    #recordButton.active {
+      background-color: #dc3545;
+    }
+
+    #recordButton:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .status-message {
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #28a745;
+      display: none;
+    }
   </style>
   <script>
     let recognition;
@@ -26,7 +107,10 @@
             // Copy the transcription to the clipboard
             try {
               await navigator.clipboard.writeText(transcript);
-              alert("Transcription copied to clipboard");
+              showStatusMessage("Transcription copied to clipboard!");
+              setTimeout(() => {
+                window.close();
+              }, 1500); // Close the window after 1.5 seconds
             } catch (err) {
               console.error("Failed to copy to clipboard:", err);
             }
@@ -41,11 +125,6 @@
             isRecording = false;
             toggleButton();
             console.log("Speech recognition ended.");
-            
-            // Close the browser window after copying transcription
-            setTimeout(() => {
-              window.close();
-            }, 1000); // Ensure the clipboard action completes before closing
           };
         } else {
           alert("Speech Recognition not supported on this browser.");
@@ -88,12 +167,22 @@
       button.classList.toggle("active", isRecording);
     }
 
+    function showStatusMessage(message) {
+      const statusMessage = document.getElementById("statusMessage");
+      statusMessage.textContent = message;
+      statusMessage.style.display = "block";
+    }
+
     window.onload = setupRecognition;
   </script>
 </head>
 <body>
-  <h1>Speech to Text</h1>
-  <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
-  <div id="transcript">Transcript will appear here.</div>
+  <div class="container">
+    <h1>Speech to Text</h1>
+    <p class="description">Tap the button below to start recording your speech.</p>
+    <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
+    <div id="transcript">Transcript will appear here.</div>
+    <p id="statusMessage" class="status-message"></p>
+  </div>
 </body>
 </html>
