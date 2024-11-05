@@ -57,7 +57,7 @@
       overflow-wrap: break-word;
     }
 
-    #recordButton {
+    #recordButton, #copyButton {
       display: inline-block;
       padding: 12px 25px;
       font-size: 1em;
@@ -75,7 +75,7 @@
       background-color: #dc3545;
     }
 
-    #recordButton:disabled {
+    #recordButton:disabled, #copyButton:disabled {
       background-color: #6c757d;
       cursor: not-allowed;
     }
@@ -84,6 +84,13 @@
       margin-top: 15px;
       font-size: 0.9em;
       color: #28a745;
+      display: none;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 0.9em;
+      margin-top: 10px;
       display: none;
     }
   </style>
@@ -104,16 +111,17 @@
             document.getElementById('transcript').textContent = transcript;
             console.log("Transcription result:", transcript);
 
-            // Copy the transcription to the clipboard
+            // Attempt to copy the transcription to the clipboard
             try {
               await navigator.clipboard.writeText(transcript);
-              showStatusMessage("Transcription copied to clipboard!");
-              setTimeout(() => {
-                window.close();
-              }, 1500); // Close the window after 1.5 seconds
+              showStatusMessage("Transcription copied to clipboard automatically!");
             } catch (err) {
               console.error("Failed to copy to clipboard:", err);
+              showError("Automatic copy failed. Please use the button to copy.");
             }
+
+            // Show the "Copy to Clipboard" button after transcription
+            document.getElementById("copyButton").style.display = "inline-block";
           };
 
           recognition.onerror = (event) => {
@@ -167,10 +175,31 @@
       button.classList.toggle("active", isRecording);
     }
 
+    async function copyToClipboard() {
+      const transcript = document.getElementById("transcript").textContent;
+      if (transcript && transcript !== "Transcript will appear here.") {
+        try {
+          await navigator.clipboard.writeText(transcript);
+          showStatusMessage("Text copied to clipboard!");
+        } catch (err) {
+          console.error("Failed to copy text:", err);
+          showError("Could not copy text. Please try again.");
+        }
+      } else {
+        showError("No transcription to copy.");
+      }
+    }
+
     function showStatusMessage(message) {
       const statusMessage = document.getElementById("statusMessage");
       statusMessage.textContent = message;
       statusMessage.style.display = "block";
+    }
+
+    function showError(message) {
+      const errorMessage = document.getElementById("errorMessage");
+      errorMessage.textContent = message;
+      errorMessage.style.display = "block";
     }
 
     window.onload = setupRecognition;
@@ -182,7 +211,9 @@
     <p class="description">Tap the button below to start recording your speech.</p>
     <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
     <div id="transcript">Transcript will appear here.</div>
+    <button id="copyButton" onclick="copyToClipboard()" style="display: none;">Copy to Clipboard</button>
     <p id="statusMessage" class="status-message"></p>
+    <p id="errorMessage" class="error-message"></p>
   </div>
 </body>
 </html>
