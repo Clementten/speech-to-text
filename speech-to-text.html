@@ -18,13 +18,18 @@
           recognition.interimResults = false;
           recognition.lang = "en-US";
 
-          recognition.onresult = (event) => {
+          recognition.onresult = async (event) => {
             const transcript = event.results[0][0].transcript;
             document.getElementById('transcript').textContent = transcript;
             console.log("Transcription result:", transcript);
 
-            // Send the transcription back to the React Native app
-            window.ReactNativeWebView.postMessage(transcript);
+            // Copy the transcription to the clipboard
+            try {
+              await navigator.clipboard.writeText(transcript);
+              alert("Transcription copied to clipboard");
+            } catch (err) {
+              console.error("Failed to copy to clipboard:", err);
+            }
           };
 
           recognition.onerror = (event) => {
@@ -36,11 +41,11 @@
             isRecording = false;
             toggleButton();
             console.log("Speech recognition ended.");
-
-            // Close the web page after sending transcription
+            
+            // Close the browser window after copying transcription
             setTimeout(() => {
               window.close();
-            }, 1000); // Delay to ensure message is sent before closing
+            }, 1000); // Ensure the clipboard action completes before closing
           };
         } else {
           alert("Speech Recognition not supported on this browser.");
