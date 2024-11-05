@@ -67,8 +67,10 @@
             const transcript = event.results[0][0].transcript;
             document.getElementById('transcript').textContent = transcript;
             console.log("Transcription result:", transcript);
-            // Send the transcript to React Native app
-            window.ReactNativeWebView.postMessage(transcript);
+
+            // Send the transcription back to the React Native app using deep linking
+            const appUrl = `yourapp://transcription?text=${encodeURIComponent(transcript)}`;
+            window.location.href = appUrl;
           };
 
           recognition.onerror = (event) => {
@@ -80,6 +82,11 @@
             isRecording = false;
             toggleButton();
             console.log("Speech recognition ended.");
+
+            // Auto-close the browser after recording stops
+            setTimeout(() => {
+              window.close();
+            }, 1000); // Delay to ensure deep link is processed before closing
           };
         } else {
           alert("Speech Recognition not supported on this browser.");
