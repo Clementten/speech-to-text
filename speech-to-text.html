@@ -67,10 +67,8 @@
             const transcript = event.results[0][0].transcript;
             document.getElementById('transcript').textContent = transcript;
             console.log("Transcription result:", transcript);
-
-            // Send transcription back to the app using the custom URL scheme
-            const encodedTranscript = encodeURIComponent(transcript);
-            window.location.href = `yourapp://transcription?text=${encodedTranscript}`;
+            // Send the transcript to React Native app
+            window.ReactNativeWebView.postMessage(transcript);
           };
 
           recognition.onerror = (event) => {
